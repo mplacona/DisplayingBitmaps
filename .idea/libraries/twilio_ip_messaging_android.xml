@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="twilio-ip-messaging-android">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Application/Libs/twilio-ip-messaging-android.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
