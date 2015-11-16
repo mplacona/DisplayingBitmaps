@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.android.displayingbitmaps.BuildConfig;
 import com.example.android.displayingbitmaps.R;
 import com.example.android.displayingbitmaps.provider.Tokens;
 import com.example.android.displayingbitmaps.util.BasicIPMessagingClient;
@@ -66,6 +68,7 @@ public class LoginActivity extends FragmentActivity implements ILoginListener {
                 url.append("&service_sid=" + Tokens.ServiceSid);
 
                 logger.e("url string : " + url.toString());
+
                 new GetCapabilityTokenAsyncTask().execute(url.toString());
             }
         });
@@ -113,7 +116,14 @@ public class LoginActivity extends FragmentActivity implements ILoginListener {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            LoginActivity.this.chatClient.doLogin(capabilityToken, LoginActivity.this);
+
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    LoginActivity.this.chatClient.doLogin(capabilityToken, LoginActivity.this);
+                }
+            }).start();
         }
 
         @Override

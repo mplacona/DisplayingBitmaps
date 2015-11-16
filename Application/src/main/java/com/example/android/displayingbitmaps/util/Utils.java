@@ -17,12 +17,18 @@
 package com.example.android.displayingbitmaps.util;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
+import android.os.Bundle;
 import android.os.StrictMode;
 
+import com.example.android.common.logger.Log;
 import com.example.android.displayingbitmaps.ui.ImageDetailActivity;
 import com.example.android.displayingbitmaps.ui.ImageGridActivity;
+
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Class containing some static utility methods.
@@ -51,6 +57,21 @@ public class Utils {
             }
             StrictMode.setThreadPolicy(threadPolicyBuilder.build());
             StrictMode.setVmPolicy(vmPolicyBuilder.build());
+        }
+    }
+
+    public static void dumpIntent(Intent i){
+
+        Bundle bundle = i.getExtras();
+        if (bundle != null) {
+            Set<String> keys = bundle.keySet();
+            Iterator<String> it = keys.iterator();
+            Log.e("TAG", "Dumping Intent start");
+            while (it.hasNext()) {
+                String key = it.next();
+                Log.e("TAG","[" + key + "=" + bundle.get(key)+"]");
+            }
+            Log.e("TAG", "Dumping Intent end");
         }
     }
 
