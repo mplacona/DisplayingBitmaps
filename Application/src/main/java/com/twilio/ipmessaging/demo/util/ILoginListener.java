@@ -1,4 +1,4 @@
-package com.example.android.displayingbitmaps.util;
+package com.twilio.ipmessaging.demo.util;
 
 public interface ILoginListener {
     public void onLoginStarted();

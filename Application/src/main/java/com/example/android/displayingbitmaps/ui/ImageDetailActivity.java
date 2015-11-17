@@ -41,6 +41,7 @@ import com.example.android.displayingbitmaps.provider.Images;
 import com.example.android.displayingbitmaps.util.ImageCache;
 import com.example.android.displayingbitmaps.util.ImageFetcher;
 import com.example.android.displayingbitmaps.util.Utils;
+import com.twilio.ipmessaging.demo.ui.LoginActivity;
 
 public class ImageDetailActivity extends FragmentActivity implements OnClickListener {
     private static final String IMAGE_CACHE_DIR = "images";

@@ -1,10 +1,7 @@
-package com.example.android.displayingbitmaps.util;
+package com.twilio.ipmessaging.demo.util;
 
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 
-import com.example.android.displayingbitmaps.ui.ChatActivity;
 import com.twilio.ipmessaging.Channel;
 import com.twilio.ipmessaging.Constants.InitListener;
 import com.twilio.ipmessaging.IPMessagingClientListener;
@@ -38,6 +35,27 @@ public class BasicIPMessagingClient implements IPMessagingClientListener {
 
 
     public void doLogin(final String capabilityToken, final ILoginListener listener) {
+        /*TwilioIPMessagingSDK.initializeSDK(context, new InitListener()
+        {
+            @Override
+            public void onInitialized()
+            {
+                ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithToken(capabilityToken, BasicIPMessagingClient.this);
+                if(listener != null) {
+                    listener.onLoginFinished();
+                }
+                else {
+                    listener.onLoginError("ipMessagingClient is null");
+                }
+            }
+
+            @Override
+            public void onError(Exception error)
+            {
+                logger.d(error.getMessage());
+            }
+        });*/
+
         if(!TwilioIPMessagingSDK.isInitialized()) {
             TwilioIPMessagingSDK.initializeSDK(this.context, new InitListener() {
                 @Override
@@ -120,9 +138,9 @@ public class BasicIPMessagingClient implements IPMessagingClientListener {
     private void createClientWithToken(ILoginListener listener) {
         ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithToken(capabilityToken, BasicIPMessagingClient.this);
         if(ipMessagingClient != null) {
-            Intent intent = new Intent(context,ChatActivity.class);
+            /*Intent intent = new Intent(context,ChatActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            ipMessagingClient.setIncomingIntent(pendingIntent);
+            ipMessagingClient.setIncomingIntent(pendingIntent);*/
             if(listener != null) {
                 listener.onLoginFinished();
             }

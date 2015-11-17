@@ -5,7 +5,7 @@
  *  the Twilio Terms of Service located at http://www.twilio.com/legal/tos
  */
 
-package com.example.android.displayingbitmaps.util;
+package com.twilio.ipmessaging.demo.util;
 
 import java.io.IOException;
 import java.io.InputStream;

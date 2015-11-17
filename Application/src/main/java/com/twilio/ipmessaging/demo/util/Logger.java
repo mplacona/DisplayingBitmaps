@@ -1,4 +1,4 @@
-package com.example.android.displayingbitmaps.util;
+package com.twilio.ipmessaging.demo.util;
 
 import android.util.Log;
 

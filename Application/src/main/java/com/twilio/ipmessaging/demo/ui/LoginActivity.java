@@ -1,10 +1,9 @@
-package com.example.android.displayingbitmaps.ui;
+package com.twilio.ipmessaging.demo.ui;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -14,13 +13,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.android.displayingbitmaps.BuildConfig;
 import com.example.android.displayingbitmaps.R;
 import com.example.android.displayingbitmaps.provider.Tokens;
-import com.example.android.displayingbitmaps.util.BasicIPMessagingClient;
-import com.example.android.displayingbitmaps.util.HttpHelper;
-import com.example.android.displayingbitmaps.util.ILoginListener;
-import com.example.android.displayingbitmaps.util.Logger;
+import com.twilio.ipmessaging.demo.util.BasicIPMessagingClient;
+import com.twilio.ipmessaging.demo.util.HttpHelper;
+import com.twilio.ipmessaging.demo.util.ILoginListener;
+import com.twilio.ipmessaging.demo.util.Logger;
+import com.twilio.ipmessaging.demo.application.TwilioApplication;
 
 import java.net.URLEncoder;
 
@@ -33,6 +32,8 @@ public class LoginActivity extends FragmentActivity implements ILoginListener {
     private BasicIPMessagingClient chatClient;
     private EditText clientEmail;
     private String endpoint_id = "";
+    public static String local_author = DEFAULT_CLIENT_EMAIL;
+
     private Button login;
     private ProgressDialog progressDialog;
 
@@ -73,7 +74,7 @@ public class LoginActivity extends FragmentActivity implements ILoginListener {
             }
         });
 
-        chatClient = new BasicIPMessagingClient();
+        chatClient = TwilioApplication.get().getBasicClient();
     }
 
     @Override

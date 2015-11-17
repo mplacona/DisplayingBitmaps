@@ -91,6 +91,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="twilio-ip-messaging-android" level="project" />
     <orderEntry type="library" exported="" name="gridlayout-v7-23.0.0" level="project" />
+    <orderEntry type="library" exported="" name="easyadapter-1.5.0" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-23.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.0.1" level="project" />
