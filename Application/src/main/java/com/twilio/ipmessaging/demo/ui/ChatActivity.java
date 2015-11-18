@@ -48,8 +48,19 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        adapter = new EasyAdapter<>(this, MessageViewHolder.class, messages,
+                new MessageViewHolder.OnMessageClickListener() {
+
+                    @Override
+                    public void onMessageClicked(Message message) {
+                        // TODO: Implement options for deletion or edit
+                    }
+                });
+
         // List View
         lvChat = (ListView) findViewById(R.id.lvChat);
+        lvChat.setAdapter(adapter);
+
         if(lvChat != null) {
             lvChat.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
             lvChat.setStackFromBottom(true);
@@ -61,17 +72,6 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
                 }
             });
         }
-
-        adapter = new EasyAdapter<Message>(this, MessageViewHolder.class, messages,
-            new MessageViewHolder.OnMessageClickListener() {
-
-                @Override
-                public void onMessageClicked(Message message) {
-                   // TODO: Implement options for deletion or edit
-                }
-            });
-        lvChat.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
 
         // Message Text
         this.etMessage = (EditText) findViewById(R.id.etMessage);
@@ -108,7 +108,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
 
 
         // Creates a new public channel if one doesn't already exist
-        channelsLocal.createChannel(channelName, Channel.ChannelType.CHANNEL_TYPE_PUBLIC, new Constants.CreateChannelListener() {
+        channelsLocal.createChannel(channelName, Channel.ChannelType.CHANNEL_TYPE_PUBLIC, new  Constants.CreateChannelListener() {
             @Override
             public void onCreated(final Channel newChannel) {
                 logger.e("Successfully created a channel");
@@ -123,7 +123,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    //adapter.notifyDataSetChanged();
+                                    adapter.notifyDataSetChanged();
                                     Messages messagesObject = newChannel.getMessages();
                                     Message[] messagesArray = messagesObject.getMessages();
                                     if(messagesArray.length > 0 ) {
