@@ -23,10 +23,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
-        android:name="com.twilio.ipmessaging.demo.application.TwilioApplication"
+        android:name="com.twilio.ipmessaging.application.TwilioApplication"
         android:allowBackup="true"
         android:description="@string/intro_message"
         android:icon="@drawable/ic_launcher"
@@ -51,16 +51,16 @@
                 android:value=".ui.ImageGridActivity" />
         </activity>
         <activity
-            android:name="com.twilio.ipmessaging.demo.ui.ChatActivity"
-            android:label="@string/title_activity_chat"></activity>
-
+            android:name="com.twilio.ipmessaging.ui.ChatActivity"
+            android:label="@string/title_activity_chat" />
         <activity
-            android:name="com.twilio.ipmessaging.demo.ui.LoginActivity"
-            android:label="@string/title_activity_chat"></activity>
+            android:name="com.twilio.ipmessaging.ui.LoginActivity"
+            android:label="@string/title_activity_chat" />
 
         <service
             android:name="com.twilio.ipmessaging.TwilioIPMessagingClientService"
             android:exported="false" />
+
     </application>
 
 </manifest>

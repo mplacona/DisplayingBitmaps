@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo.ui;
+package com.twilio.ipmessaging.ui;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -15,11 +15,11 @@ import android.widget.Toast;
 
 import com.example.android.displayingbitmaps.R;
 import com.example.android.displayingbitmaps.provider.Tokens;
-import com.twilio.ipmessaging.demo.util.BasicIPMessagingClient;
-import com.twilio.ipmessaging.demo.util.HttpHelper;
-import com.twilio.ipmessaging.demo.util.ILoginListener;
-import com.twilio.ipmessaging.demo.util.Logger;
-import com.twilio.ipmessaging.demo.application.TwilioApplication;
+import com.twilio.ipmessaging.util.BasicIPMessagingClient;
+import com.twilio.ipmessaging.util.HttpHelper;
+import com.twilio.ipmessaging.util.ILoginListener;
+import com.twilio.ipmessaging.util.Logger;
+import com.twilio.ipmessaging.application.TwilioApplication;
 
 import java.net.URLEncoder;
 

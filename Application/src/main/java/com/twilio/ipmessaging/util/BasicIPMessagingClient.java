@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo.util;
+package com.twilio.ipmessaging.util;
 
 import android.content.Context;
 

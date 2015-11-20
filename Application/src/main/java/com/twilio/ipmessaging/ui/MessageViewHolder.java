@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo.ui;
+package com.twilio.ipmessaging.ui;
 
 import android.view.Gravity;
 import android.view.View;

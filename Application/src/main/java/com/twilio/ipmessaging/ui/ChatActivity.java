@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo.ui;
+package com.twilio.ipmessaging.ui;
 
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -11,8 +11,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.android.displayingbitmaps.R;
-import com.twilio.ipmessaging.demo.util.BasicIPMessagingClient;
-import com.twilio.ipmessaging.demo.util.Logger;
+import com.twilio.ipmessaging.util.BasicIPMessagingClient;
+import com.twilio.ipmessaging.util.Logger;
 import com.twilio.ipmessaging.Channel;
 import com.twilio.ipmessaging.ChannelListener;
 import com.twilio.ipmessaging.Channels;
@@ -20,7 +20,7 @@ import com.twilio.ipmessaging.Constants;
 import com.twilio.ipmessaging.Member;
 import com.twilio.ipmessaging.Message;
 import com.twilio.ipmessaging.Messages;
-import com.twilio.ipmessaging.demo.application.TwilioApplication;
+import com.twilio.ipmessaging.application.TwilioApplication;
 
 import java.util.ArrayList;
 import java.util.Arrays;

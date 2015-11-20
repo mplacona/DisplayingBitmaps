@@ -1,8 +1,8 @@
-package com.twilio.ipmessaging.demo.application;
+package com.twilio.ipmessaging.application;
 
 import android.app.Application;
 
-import com.twilio.ipmessaging.demo.util.BasicIPMessagingClient;
+import com.twilio.ipmessaging.util.BasicIPMessagingClient;
 
 public class TwilioApplication extends Application {
     private BasicIPMessagingClient rtdJni;
