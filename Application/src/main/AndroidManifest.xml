@@ -60,7 +60,6 @@
         <service
             android:name="com.twilio.ipmessaging.TwilioIPMessagingClientService"
             android:exported="false" />
-
     </application>
 
 </manifest>
