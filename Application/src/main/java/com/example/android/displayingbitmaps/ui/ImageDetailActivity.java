@@ -50,6 +50,7 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
     private ImagePagerAdapter mAdapter;
     private ImageFetcher mImageFetcher;
     private ViewPager mPager;
+    private int extraCurrentItem;
 
     @TargetApi(VERSION_CODES.HONEYCOMB)
     @Override
@@ -121,7 +122,7 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
         }
 
         // Set the current item based on the extra passed in to this activity
-        final int extraCurrentItem = getIntent().getIntExtra(EXTRA_IMAGE, -1);
+        extraCurrentItem = getIntent().getIntExtra(EXTRA_IMAGE, -1);
         if (extraCurrentItem != -1) {
             mPager.setCurrentItem(extraCurrentItem);
         }
@@ -159,8 +160,8 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
                 return true;
             case R.id.discuss:
                 final Intent i = new Intent(this, LoginActivity.class);
+                i.putExtra(ImageDetailActivity.EXTRA_IMAGE, extraCurrentItem);
                 startActivity(i);
-                //i.putExtra(ImageDetailActivity.EXTRA_IMAGE, (int) id);
 
         }
         return super.onOptionsItemSelected(item);

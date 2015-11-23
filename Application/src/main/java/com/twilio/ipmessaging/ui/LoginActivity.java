@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.android.displayingbitmaps.R;
 import com.example.android.displayingbitmaps.provider.Tokens;
+import com.example.android.displayingbitmaps.ui.ImageDetailActivity;
 import com.twilio.ipmessaging.util.BasicIPMessagingClient;
 import com.twilio.ipmessaging.util.HttpHelper;
 import com.twilio.ipmessaging.util.ILoginListener;
@@ -36,6 +37,8 @@ public class LoginActivity extends FragmentActivity implements ILoginListener {
 
     private Button login;
     private ProgressDialog progressDialog;
+
+    private int currentImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,8 @@ public class LoginActivity extends FragmentActivity implements ILoginListener {
         });
 
         chatClient = TwilioApplication.get().getBasicClient();
+
+        currentImage = getIntent().getIntExtra(ImageDetailActivity.EXTRA_IMAGE, -1);
     }
 
     @Override
@@ -96,8 +101,9 @@ public class LoginActivity extends FragmentActivity implements ILoginListener {
     @Override
     public void onLoginFinished() {
         LoginActivity.this.progressDialog.dismiss();
-        Intent intent = new Intent(this, ChatActivity.class);
-        this.startActivity(intent);
+        Intent i = new Intent(this, ChatActivity.class);
+        i.putExtra(ImageDetailActivity.EXTRA_IMAGE, currentImage);
+        this.startActivity(i);
     }
 
     @Override
@@ -122,7 +128,7 @@ public class LoginActivity extends FragmentActivity implements ILoginListener {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    LoginActivity.this.chatClient.doLogin(capabilityToken, LoginActivity.this);
+                    LoginActivity.this.chatClient.doLogin(LoginActivity.this);
                 }
             }).start();
         }

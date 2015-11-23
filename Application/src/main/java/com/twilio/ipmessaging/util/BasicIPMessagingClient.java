@@ -1,6 +1,7 @@
 package com.twilio.ipmessaging.util;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.twilio.ipmessaging.Channel;
 import com.twilio.ipmessaging.Constants.InitListener;
@@ -12,8 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BasicIPMessagingClient implements IPMessagingClientListener {
-
-    private static final Logger logger = Logger.getLogger(BasicIPMessagingClient.class);
+    private static final String TAG = "BasicIPMessagingClient";
     private String capabilityToken;
     private long nativeClientParam;
     private TwilioIPMessagingClient ipMessagingClient;
@@ -34,28 +34,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener {
     }
 
 
-    public void doLogin(final String capabilityToken, final ILoginListener listener) {
-        /*TwilioIPMessagingSDK.initializeSDK(context, new InitListener()
-        {
-            @Override
-            public void onInitialized()
-            {
-                ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithToken(capabilityToken, BasicIPMessagingClient.this);
-                if(listener != null) {
-                    listener.onLoginFinished();
-                }
-                else {
-                    listener.onLoginError("ipMessagingClient is null");
-                }
-            }
-
-            @Override
-            public void onError(Exception error)
-            {
-                logger.d(error.getMessage());
-            }
-        });*/
-
+    public void doLogin(final ILoginListener listener) {
         if(!TwilioIPMessagingSDK.isInitialized()) {
             TwilioIPMessagingSDK.initializeSDK(this.context, new InitListener() {
                 @Override
@@ -65,7 +44,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener {
 
                 @Override
                 public void onError(Exception error) {
-                    logger.d(error.getMessage());
+                    Log.d(TAG, error.getMessage());
                 }
             });
         } else {
@@ -97,38 +76,43 @@ public class BasicIPMessagingClient implements IPMessagingClientListener {
     @Override
     public void onChannelAdd(Channel channel) {
         if(channel != null) {
-            logger.d("A Channel :"+ channel.getFriendlyName() + " got added");
+            Log.d(TAG, "A Channel :"+ channel.getFriendlyName() + " got added");
         } else {
-            logger.d("Received onChannelAdd event.");
+            Log.d(TAG, "Received onChannelAdd event.");
         }
     }
 
     @Override
     public void onChannelChange(Channel channel) {
         if(channel != null) {
-            logger.d("Channel Name : "+ channel.getFriendlyName() + " got Changed");
+            Log.d(TAG, "Channel Name : "+ channel.getFriendlyName() + " got Changed");
         } else {
-            logger.d("received onChannelChange event.");
+            Log.d(TAG, "received onChannelChange event.");
         }
     }
 
     @Override
     public void onChannelDelete(Channel channel) {
         if(channel != null) {
-            logger.d("A Channel :"+ channel.getFriendlyName() + " got deleted");
+            Log.d(TAG, "A Channel :"+ channel.getFriendlyName() + " got deleted");
         } else {
-            logger.d("received onChannelDelete event.");
+            Log.d(TAG, "received onChannelDelete event.");
         }
     }
 
     @Override
     public void onError(int errorCode, String errorText) {
-        logger.d("Received onError event.");
+        Log.d(TAG, "Received onError event.");
     }
 
     @Override
     public void onAttributesChange(String attributes) {
-        logger.d("Received onAttributesChange event.");
+        Log.d(TAG, "Received onAttributesChange event.");
+    }
+
+    @Override
+    public void onChannelHistoryLoaded(Channel channel) {
+        Log.d(TAG, "Received onChannelHistoryLoaded callback " + channel.getFriendlyName());
     }
 
     public TwilioIPMessagingClient getIpMessagingClient() {
@@ -138,9 +122,6 @@ public class BasicIPMessagingClient implements IPMessagingClientListener {
     private void createClientWithToken(ILoginListener listener) {
         ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithToken(capabilityToken, BasicIPMessagingClient.this);
         if(ipMessagingClient != null) {
-            /*Intent intent = new Intent(context,ChatActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            ipMessagingClient.setIncomingIntent(pendingIntent);*/
             if(listener != null) {
                 listener.onLoginFinished();
             }
