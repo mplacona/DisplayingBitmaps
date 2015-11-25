@@ -93,7 +93,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
         final String channelName = "TestChannel" + String.valueOf(currentImage);
         Channels channelsLocal= basicClient.getIpMessagingClient().getChannels();
 
-        Channel test = channelsLocal.getChannelByUniqueName(channelName);
+        Channel test = channelsLocal.getChannel("CHe2c442dcdf4d47d58d9980ee43a5eb56");
 
 
         // Creates a new public channel if one doesn't already exist
@@ -244,7 +244,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
 
     @Override
     public void onMemberJoin(Member member) {
-
+        setupListView(this.channel);
     }
 
     @Override

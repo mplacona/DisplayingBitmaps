@@ -26,6 +26,6 @@
         android:id="@+id/discuss"
         android:icon="@android:drawable/ic_menu_delete"
         android:showAsAction="never"
-        android:title="@string/discuss"/>
+        android:title="Discuss"/>
 
 </menu>
