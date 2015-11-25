@@ -15,18 +15,12 @@ import java.util.List;
 public class BasicIPMessagingClient implements IPMessagingClientListener {
     private static final String TAG = "BasicIPMessagingClient";
     private String capabilityToken;
-    private long nativeClientParam;
     private TwilioIPMessagingClient ipMessagingClient;
-    private Channel[] channels;
     private Context context;
 
     public BasicIPMessagingClient(Context context) {
         super();
         this.context = context;
-    }
-
-    public String getCapabilityToken() {
-        return capabilityToken;
     }
 
     public void setCapabilityToken(String capabilityToken) {
@@ -50,27 +44,6 @@ public class BasicIPMessagingClient implements IPMessagingClientListener {
         } else {
             createClientWithToken(listener);
         }
-    }
-
-    public BasicIPMessagingClient() {
-        super();
-    }
-
-    public void cleanupTest() {
-        // TODO
-    }
-
-    public List<Channel> getChannelList() {
-        List<Channel> list = Arrays.asList(this.channels);
-        return list;
-    }
-
-    public long getNativeClientParam() {
-        return nativeClientParam;
-    }
-
-    public void setNativeClientParam(long nativeClientParam) {
-        this.nativeClientParam = nativeClientParam;
     }
 
     @Override

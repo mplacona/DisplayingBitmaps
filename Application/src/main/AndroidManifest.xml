@@ -53,9 +53,6 @@
         <activity
             android:name="com.twilio.ipmessaging.ui.ChatActivity"
             android:label="@string/title_activity_chat" />
-        <activity
-            android:name="com.twilio.ipmessaging.ui.LoginActivity"
-            android:label="@string/title_activity_chat" />
 
         <service
             android:name="com.twilio.ipmessaging.TwilioIPMessagingClientService"
