@@ -41,6 +41,7 @@ import com.example.android.displayingbitmaps.provider.Images;
 import com.example.android.displayingbitmaps.util.ImageCache;
 import com.example.android.displayingbitmaps.util.ImageFetcher;
 import com.example.android.displayingbitmaps.util.Utils;
+import com.twilio.ipmessaging.ui.ChatActivity;
 import com.twilio.ipmessaging.ui.LoginActivity;
 
 public class ImageDetailActivity extends FragmentActivity implements OnClickListener {
@@ -159,7 +160,7 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
                         this, R.string.clear_cache_complete_toast,Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.discuss:
-                final Intent i = new Intent(this, LoginActivity.class);
+                final Intent i = new Intent(this, ChatActivity.class);
                 i.putExtra(ImageDetailActivity.EXTRA_IMAGE, extraCurrentItem);
                 startActivity(i);
 

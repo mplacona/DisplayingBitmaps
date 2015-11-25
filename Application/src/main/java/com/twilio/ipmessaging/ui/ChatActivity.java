@@ -1,7 +1,10 @@
 package com.twilio.ipmessaging.ui;
 
+import android.app.ProgressDialog;
 import android.database.DataSetObserver;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -10,11 +13,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.android.displayingbitmaps.R;
+import com.example.android.displayingbitmaps.provider.Tokens;
 import com.example.android.displayingbitmaps.ui.ImageDetailActivity;
-import com.twilio.ipmessaging.util.BasicIPMessagingClient;
-import com.twilio.ipmessaging.util.Logger;
 import com.twilio.ipmessaging.Channel;
 import com.twilio.ipmessaging.ChannelListener;
 import com.twilio.ipmessaging.Channels;
@@ -23,19 +26,31 @@ import com.twilio.ipmessaging.Member;
 import com.twilio.ipmessaging.Message;
 import com.twilio.ipmessaging.Messages;
 import com.twilio.ipmessaging.application.TwilioApplication;
+import com.twilio.ipmessaging.util.BasicIPMessagingClient;
+import com.twilio.ipmessaging.util.HttpHelper;
+import com.twilio.ipmessaging.util.ILoginListener;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import uk.co.ribot.easyadapter.EasyAdapter;
 
 
-public class ChatActivity extends FragmentActivity implements ChannelListener {
+public class ChatActivity extends FragmentActivity implements ChannelListener, ILoginListener {
 
+    // Authentication
+    private static final String AUTH_SCRIPT = "https://twilio-ip-messaging-token.herokuapp.com/token";
+    private String capabilityToken = null;
+    private BasicIPMessagingClient chatClient;
+    private String endpoint_id = "";
+    private ProgressDialog progressDialog;
+
+    // Chat
     private static final String TAG = "ChatActivity";
-    private BasicIPMessagingClient basicClient;
     private List<Message> messages = new ArrayList<>();
     private EasyAdapter<Message> adapter;
 
@@ -52,6 +67,18 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        chatClient = TwilioApplication.get().getBasicClient();
+
+        // Authentication
+        try {
+            authenticateUser();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Chat
         currentImage = getIntent().getIntExtra(ImageDetailActivity.EXTRA_IMAGE, -1);
 
         // Message Text
@@ -88,10 +115,8 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
             }
         });
 
-        basicClient = TwilioApplication.get().getRtdJni();
-
         final String channelName = "TestChannel" + String.valueOf(currentImage);
-        Channels channelsLocal= basicClient.getIpMessagingClient().getChannels();
+        Channels channelsLocal= chatClient.getIpMessagingClient().getChannels();
 
         Channel test = channelsLocal.getChannel("CHe2c442dcdf4d47d58d9980ee43a5eb56");
 
@@ -275,5 +300,85 @@ public class ChatActivity extends FragmentActivity implements ChannelListener {
     @Override
     public void onChannelHistoryLoaded() {
         setupListView(channel);
+    }
+
+    @Override
+    public void onLoginStarted() {
+        Log.d(TAG, "Log in started");
+    }
+
+    @Override
+    public void onLoginFinished() {
+        ChatActivity.this.progressDialog.dismiss();
+    }
+
+    @Override
+    public void onLoginError(String errorMessage) {
+        ChatActivity.this.progressDialog.dismiss();
+        Log.d(TAG, "Error logging in : " + errorMessage);
+        Toast.makeText(getBaseContext(), errorMessage, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onLogoutFinished() {
+
+    }
+
+    private void authenticateUser() throws ExecutionException, InterruptedException {
+        String idChosen = "somerandomID";
+        this.endpoint_id = Settings.Secure.getString(this.getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        String endpointIdFull = idChosen + "-" + ChatActivity.this.endpoint_id + "-android-" + getApplication().getPackageName();
+
+        StringBuilder url = new StringBuilder();
+        url.append(AUTH_SCRIPT);
+        url.append("?identity=");
+        url.append(URLEncoder.encode(idChosen));
+        url.append("&endpointId=" + URLEncoder.encode(endpointIdFull));
+        url.append(idChosen);
+        url.append("&endpoint_id=" + ChatActivity.this.endpoint_id);
+        url.append("&ttl=3600");
+
+        // Replace this with hard coded values or change Tokens.java
+
+        url.append("&account_sid=" + Tokens.AccountSid);
+        url.append("&auth_token=" + Tokens.AuthToken);
+        url.append("&service_sid=" + Tokens.ServiceSid);
+        Log.d(TAG, "url string : " + url.toString());
+
+        new GetCapabilityTokenAsyncTask().execute(url.toString()).get();
+    }
+
+    private class GetCapabilityTokenAsyncTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ChatActivity.this.chatClient.doLogin(ChatActivity.this);
+                }
+            }).start();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            ChatActivity.this.progressDialog = ProgressDialog.show(ChatActivity.this, "",
+                    "Logging in. Please wait...", true);
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                capabilityToken = HttpHelper.httpGet(params[0]);
+                chatClient.setCapabilityToken(capabilityToken);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return capabilityToken;
+        }
     }
 }
