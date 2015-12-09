@@ -162,6 +162,7 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
                 final Intent i = new Intent(this, ChatActivity.class);
                 i.putExtra(ImageDetailActivity.EXTRA_IMAGE, extraCurrentItem);
                 startActivity(i);
+                finish();
 
         }
         return super.onOptionsItemSelected(item);

@@ -229,101 +229,105 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
     }
 
     @Override
-public void onLoginFinished() {
-    ChatActivity.this.progressDialog.dismiss();
+    public void onLoginFinished() {
+        ChatActivity.this.progressDialog.dismiss();
 
-    final String channelName = "TestChannel" + String.valueOf(currentImage);
-    Channels channelsLocal = chatClient.getIpMessagingClient().getChannels();
-    // Creates a new public channel if one doesn't already exist
-    if (channelsLocal.getChannelByUniqueName(channelName) != null) {
-        //join it
-        final Channel newChannel = channelsLocal.getChannelByUniqueName(channelName);
-        newChannel.join(new Constants.StatusListener() {
-            @Override
-            public void onSuccess() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Messages messagesObject = newChannel.getMessages();
-                        Message[] messagesArray = messagesObject.getMessages();
-                        if (messagesArray.length > 0) {
-                            messages = new ArrayList<>(Arrays.asList(messagesArray));
-                        }
-                        channel = newChannel;
-                        setupListView();
-                    }
-                });
-                Log.d(TAG, "Successfully joined existing channel");
-            }
-
-            @Override
-            public void onError() {
-                Log.e(TAG, "failed to join existing channel");
-            }
-
-        });
-
-    } else {
-        channelsLocal.createChannel(channelName, Channel.ChannelType.CHANNEL_TYPE_PUBLIC, new Constants.CreateChannelListener() {
-            @Override
-            public void onCreated(final Channel newChannel) {
-                Log.e(TAG, "Successfully created a channel");
-                if (newChannel != null) {
-                    final String sid = newChannel.getSid();
-                    Channel.ChannelType type = newChannel.getType();
-                    newChannel.setListener(ChatActivity.this);
-                    Log.e(TAG, "channel Type is : " + type.toString());
-                    newChannel.setUniqueName(channelName, new Constants.StatusListener() {
-                        @Override
-                        public void onSuccess() {
-                            Log.d(TAG, "Successfully set new channel unique name");
-                        }
-
-                        @Override
-                        public void onError() {
-                            Log.e(TAG, "Failed to set new channel unique name");
-                        }
-                    });
-                    newChannel.join(new Constants.StatusListener() {
-                        @Override
-                        public void onSuccess() {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Messages messagesObject = newChannel.getMessages();
-                                    Message[] messagesArray = messagesObject.getMessages();
-                                    if (messagesArray.length > 0) {
-                                        messages = new ArrayList<>(Arrays.asList(messagesArray));
-                                    }
-                                    channel = newChannel;
-                                    setupListView();
-                                }
-                            });
-                            Log.d(TAG, "Successfully joined new channel");
-                        }
-
-                        @Override
-                        public void onError() {
-                            Log.e(TAG, "failed to join new channel");
-                        }
-
-                    });
-
+        final String channelName = "TestChannel" + String.valueOf(currentImage);
+        Channels channelsLocal = chatClient.getIpMessagingClient().getChannels();
+        // Creates a new public channel if one doesn't already exist
+        if (channelsLocal.getChannelByUniqueName(channelName) != null) {
+            //join it
+            final Channel newChannel = channelsLocal.getChannelByUniqueName(channelName);
+            newChannel.join(new Constants.StatusListener() {
+                @Override
+                public void onSuccess() {
+                    channel.setListener(ChatActivity.this);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            Messages messagesObject = newChannel.getMessages();
+                            Message[] messagesArray = messagesObject.getMessages();
+                            if (messagesArray.length > 0) {
+                                messages = new ArrayList<>(Arrays.asList(messagesArray));
+                            }
+                            channel = newChannel;
+                            setupListView();
                         }
                     });
+                    Log.d(TAG, "Successfully joined existing channel");
                 }
-            }
 
-            @Override
-            public void onError() {
+                @Override
+                public void onError() {
+                    Log.e(TAG, "failed to join existing channel");
+                }
 
-            }
-        });
+            });
+
+        } else {
+            channelsLocal.createChannel(channelName, Channel.ChannelType.CHANNEL_TYPE_PUBLIC, new Constants.CreateChannelListener() {
+                @Override
+                public void onCreated(final Channel newChannel) {
+                    Log.e(TAG, "Successfully created a channel");
+                    if (newChannel != null) {
+                        final String sid = newChannel.getSid();
+                        Channel.ChannelType type = newChannel.getType();
+                        newChannel.setListener(ChatActivity.this);
+                        Log.e(TAG, "channel Type is : " + type.toString());
+                        newChannel.join(new Constants.StatusListener() {
+                            @Override
+                            public void onSuccess() {
+                                channel.setListener(ChatActivity.this);
+                                // Set unique name
+                                newChannel.setUniqueName(channelName, new Constants.StatusListener() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Log.d(TAG, "Successfully set new channel unique name");
+                                    }
+
+                                    @Override
+                                    public void onError() {
+                                        Log.e(TAG, "Failed to set new channel unique name");
+                                    }
+                                });
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Messages messagesObject = newChannel.getMessages();
+                                        Message[] messagesArray = messagesObject.getMessages();
+                                        if (messagesArray.length > 0) {
+                                            messages = new ArrayList<>(Arrays.asList(messagesArray));
+                                        }
+                                        channel = newChannel;
+                                        setupListView();
+                                    }
+                                });
+                                Log.d(TAG, "Successfully joined new channel");
+                            }
+
+                            @Override
+                            public void onError() {
+                                Log.e(TAG, "failed to join new channel");
+                            }
+
+                        });
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
+        }
     }
-}
 
     @Override
     public void onLoginError(String errorMessage) {
@@ -338,7 +342,7 @@ public void onLoginFinished() {
     }
 
     private void authenticateUser() {
-        String idChosen = Faker.with(this.getApplicationContext()).Name.randomText();
+        String idChosen = URLEncoder.encode(Faker.with(this.getApplicationContext()).Name.randomText());
         this.local_author = idChosen;
         this.endpoint_id = Settings.Secure.getString(this.getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         String endpointIdFull = idChosen + "-" + ChatActivity.this.endpoint_id + "-android-" + getApplication().getPackageName();
@@ -361,9 +365,7 @@ public void onLoginFinished() {
 
         try {
             new GetCapabilityTokenAsyncTask().execute(url.toString()).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }

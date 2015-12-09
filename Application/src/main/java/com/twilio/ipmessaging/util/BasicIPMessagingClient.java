@@ -9,9 +9,6 @@ import com.twilio.ipmessaging.IPMessagingClientListener;
 import com.twilio.ipmessaging.TwilioIPMessagingClient;
 import com.twilio.ipmessaging.TwilioIPMessagingSDK;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class BasicIPMessagingClient implements IPMessagingClientListener {
     private static final String TAG = "BasicIPMessagingClient";
     private String capabilityToken;
@@ -48,6 +45,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener {
 
     @Override
     public void onChannelAdd(Channel channel) {
+        //channel.setListener(BasicIPMessagingClient.this);
         if(channel != null) {
             Log.d(TAG, "A Channel :"+ channel.getFriendlyName() + " got added");
         } else {

@@ -52,6 +52,7 @@
         </activity>
         <activity
             android:name="com.twilio.ipmessaging.ui.ChatActivity"
+            android:noHistory="true"
             android:label="@string/title_activity_chat" />
 
         <service
