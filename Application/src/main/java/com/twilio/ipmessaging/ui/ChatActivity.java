@@ -219,7 +219,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
     }
 
     @Override
-    public void onChannelHistoryLoaded() {
+    public void onChannelHistoryLoaded(Channel channel) {
         setupListView();
     }
 
