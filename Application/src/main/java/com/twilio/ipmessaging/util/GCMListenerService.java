@@ -34,7 +34,7 @@ public class GCMListenerService extends GcmListenerService {
 
     private void notify(Bundle bundle) {
 
-        Intent intent = new Intent(this, MessageActivity.class);
+      /*  Intent intent = new Intent(this, MessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (bundle.containsKey("channel_id")) {
             intent.putExtra("C_SID", bundle.getString("channel_id"));
@@ -53,7 +53,7 @@ public class GCMListenerService extends GcmListenerService {
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0, notificationBuilder.build());
+        notificationManager.notify(0, notificationBuilder.build()); */
     }
 
 }

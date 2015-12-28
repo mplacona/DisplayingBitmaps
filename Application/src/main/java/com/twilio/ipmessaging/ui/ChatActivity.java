@@ -90,28 +90,30 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
             @Override
             public void onClick(View v) {
                 String input = etMessage.getText().toString();
-                Messages messagesObject = channel.getMessages();
-                final Message message = messagesObject.createMessage(input);
-                messagesObject.sendMessage(message, new Constants.StatusListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.e(TAG, "Successful at sending message.");
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                if(channel != null) {
+                    Messages messagesObject = channel.getMessages();
+                    final Message message = messagesObject.createMessage(input);
+                    messagesObject.sendMessage(message, new Constants.StatusListener() {
+                        @Override
+                        public void onSuccess() {
+                            Log.e(TAG, "Successful at sending message.");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
 
-                                messages.add(message);
-                                etMessage.setText("");
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
+                                    messages.add(message);
+                                    etMessage.setText("");
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
 
-                    @Override
-                    public void onError() {
-                        Log.e(TAG, "Error sending message.");
-                    }
-                });
+                        @Override
+                        public void onError() {
+                            Log.e(TAG, "Error sending message.");
+                        }
+                    });
+                }
             }
         });
     }
@@ -396,7 +398,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
         protected String doInBackground(String... params) {
             try {
                 capabilityToken = HttpHelper.httpGet(params[0]);
-                chatClient.setCapabilityToken(capabilityToken);
+                //chatClient.setCapabilityToken(capabilityToken);
             } catch (Exception e) {
                 e.printStackTrace();
             }

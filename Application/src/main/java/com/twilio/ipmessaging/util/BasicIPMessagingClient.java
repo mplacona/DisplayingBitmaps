@@ -40,8 +40,8 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     }
 
 
-    public void doLogin(final ILoginListener listener, String url) {
-        this.urlString = url;
+    public void doLogin(final ILoginListener listener) {
+        //this.urlString = url;
         this.loginListenerHandler = setupListenerHandler();
         TwilioIPMessagingSDK.setLogLevel(android.util.Log.DEBUG);
         if(!TwilioIPMessagingSDK.isInitialized()) {
