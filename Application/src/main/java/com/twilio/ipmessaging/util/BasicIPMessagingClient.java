@@ -21,7 +21,6 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     private TwilioIPMessagingClient ipMessagingClient;
     private Context context;
     private String accessToken;
-    private String gcmToken;
     private TwilioAccessManager accessMgr;
     private Handler loginListenerHandler;
     private String urlString;
@@ -29,14 +28,6 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     public BasicIPMessagingClient(Context context) {
         super();
         this.context = context;
-    }
-
-    public String getGCMToken() {
-        return gcmToken;
-    }
-
-    public void setGCMToken(String gcmToken) {
-        this.gcmToken = gcmToken;
     }
 
     public String getAccessToken() {
