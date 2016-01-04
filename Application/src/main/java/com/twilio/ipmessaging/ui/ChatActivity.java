@@ -2,10 +2,8 @@ package com.twilio.ipmessaging.ui;
 
 import android.app.ProgressDialog;
 import android.database.DataSetObserver;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -17,12 +15,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.android.displayingbitmaps.R;
-import com.example.android.displayingbitmaps.provider.Tokens;
 import com.example.android.displayingbitmaps.ui.ImageDetailActivity;
 import com.twilio.ipmessaging.Channel;
 import com.twilio.ipmessaging.ChannelListener;
 import com.twilio.ipmessaging.Channels;
 import com.twilio.ipmessaging.Constants;
+import com.twilio.ipmessaging.Constants.CreateChannelListener;
+import com.twilio.ipmessaging.Constants.StatusListener;
 import com.twilio.ipmessaging.Member;
 import com.twilio.ipmessaging.Message;
 import com.twilio.ipmessaging.Messages;
@@ -31,7 +30,8 @@ import com.twilio.ipmessaging.util.BasicIPMessagingClient;
 import com.twilio.ipmessaging.util.HttpHelper;
 import com.twilio.ipmessaging.util.ILoginListener;
 
-import java.net.URLEncoder;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,17 +40,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import io.kimo.lib.faker.Faker;
 import uk.co.ribot.easyadapter.EasyAdapter;
 
 
 public class ChatActivity extends FragmentActivity implements ChannelListener, ILoginListener {
 
     // Authentication
-    private static final String AUTH_SCRIPT = "https://twilio-ip-messaging-token.herokuapp.com/token";
-    private String capabilityToken = null;
+    private static final String AUTH_SCRIPT = "http://48356f9c.ngrok.io/token";
+    private String accessToken = null;
     private BasicIPMessagingClient chatClient;
-    private String endpoint_id = "";
     private ProgressDialog progressDialog;
 
     // Chat
@@ -59,7 +57,6 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
     private EasyAdapter<Message> adapter;
 
     private ListView lvChat;
-    private Button btSend;
     private EditText etMessage;
 
     private Channel channel;
@@ -85,12 +82,12 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
         this.etMessage = (EditText) findViewById(R.id.etMessage);
 
         // Send Button
-        this.btSend = (Button) findViewById(R.id.btSend);
-        this.btSend.setOnClickListener(new View.OnClickListener() {
+        Button btSend = (Button) findViewById(R.id.btSend);
+        btSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String input = etMessage.getText().toString();
-                if(channel != null) {
+                if (channel != null) {
                     Messages messagesObject = channel.getMessages();
                     final Message message = messagesObject.createMessage(input);
                     messagesObject.sendMessage(message, new Constants.StatusListener() {
@@ -165,8 +162,6 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_chat, menu);
         return true;
     }
 
@@ -267,21 +262,23 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
             });
 
         } else {
-            channelsLocal.createChannel(channelName, Channel.ChannelType.CHANNEL_TYPE_PUBLIC, new Constants.CreateChannelListener() {
+            channelsLocal.createChannel(channelName, Channel.ChannelType.CHANNEL_TYPE_PUBLIC, new CreateChannelListener() {
                 @Override
                 public void onCreated(final Channel newChannel) {
                     Log.e(TAG, "Successfully created a channel");
                     if (newChannel != null) {
-                        final String sid = newChannel.getSid();
                         Channel.ChannelType type = newChannel.getType();
                         newChannel.setListener(ChatActivity.this);
                         Log.e(TAG, "channel Type is : " + type.toString());
-                        newChannel.join(new Constants.StatusListener() {
+
+                        // Join listener
+                        StatusListener joinListener = new StatusListener() {
+
                             @Override
                             public void onSuccess() {
                                 channel.setListener(ChatActivity.this);
                                 // Set unique name
-                                newChannel.setUniqueName(channelName, new Constants.StatusListener() {
+                                newChannel.setUniqueName(channelName, new StatusListener() {
                                     @Override
                                     public void onSuccess() {
                                         Log.d(TAG, "Successfully set new channel unique name");
@@ -312,20 +309,14 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
                             public void onError() {
                                 Log.e(TAG, "failed to join new channel");
                             }
-
-                        });
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                            }
-                        });
+                        };
+                        newChannel.join(joinListener);
                     }
                 }
 
                 @Override
                 public void onError() {
-
+                    Log.e(TAG, "failed to create new channel");
                 }
             });
         }
@@ -344,36 +335,15 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
     }
 
     private void authenticateUser() {
-        String idChosen = URLEncoder.encode(Faker.with(this.getApplicationContext()).Name.randomText());
-        this.local_author = idChosen;
-        this.endpoint_id = Settings.Secure.getString(this.getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        String endpointIdFull = idChosen + "-" + ChatActivity.this.endpoint_id + "-android-" + getApplication().getPackageName();
-
-        StringBuilder url = new StringBuilder();
-        url.append(AUTH_SCRIPT);
-        url.append("?identity=");
-        url.append(URLEncoder.encode(idChosen));
-        url.append("&endpointId=" + URLEncoder.encode(endpointIdFull));
-        url.append(idChosen);
-        url.append("&endpoint_id=" + ChatActivity.this.endpoint_id);
-        url.append("&ttl=3600");
-
-        // Replace the tokens below with your own values
-
-        url.append("&account_sid=" + Tokens.AccountSid);
-        url.append("&auth_token=" + Tokens.AuthToken);
-        url.append("&service_sid=" + Tokens.ServiceSid);
-        Log.d(TAG, "url string : " + url.toString());
-
         try {
-            new GetCapabilityTokenAsyncTask().execute(url.toString()).get();
+            new GetCapabilityTokenAsyncTask().execute(AUTH_SCRIPT).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }
 
     private class GetCapabilityTokenAsyncTask extends AsyncTask<String, Void, String> {
-
+        private String urlString;
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
@@ -382,7 +352,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    ChatActivity.this.chatClient.doLogin(ChatActivity.this);
+                    ChatActivity.this.chatClient.doLogin(accessToken, ChatActivity.this, urlString);
                 }
             }).start();
         }
@@ -397,12 +367,18 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
         @Override
         protected String doInBackground(String... params) {
             try {
-                capabilityToken = HttpHelper.httpGet(params[0]);
-                //chatClient.setCapabilityToken(capabilityToken);
+                urlString = params[0];
+                accessToken = HttpHelper.httpGet(urlString);
+
+                JSONObject responseObject = new JSONObject(accessToken);
+                String token = responseObject.getString("token");
+                ChatActivity.local_author = responseObject.getString("identity");
+
+                chatClient.setAccessToken(token);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return capabilityToken;
+            return accessToken;
         }
     }
 }

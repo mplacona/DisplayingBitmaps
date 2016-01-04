@@ -21,8 +21,6 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.0.0'
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'uk.co.ribot:easyadapter:1.5.0@aar'
-    compile 'com.github.thiagokimo:faker:1.4.3'
-    compile 'com.google.android.gms:play-services:8.4.0'
     compile files('Libs/twilio-ip-messaging-android.jar')
     compile files('Libs/twilio-common-android.jar')
 }

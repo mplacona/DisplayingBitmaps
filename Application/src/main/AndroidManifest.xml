@@ -69,7 +69,7 @@
             android:name="com.twilio.ipmessaging.TwilioIPMessagingClientService"
             android:exported="false" />
 
-        <receiver
+        <!--<receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -80,12 +80,12 @@
         </receiver>
 
         <service
-            android:name="com.twilio.ipmessaging.GCMListenerService"
+            android:name="com.twilio.ipmessaging.util.GCMListenerService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
-        </service>
+        </service>-->
 
     </application>
 

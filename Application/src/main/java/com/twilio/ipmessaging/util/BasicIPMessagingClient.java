@@ -20,9 +20,9 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     private static final String TAG = "BasicIPMessagingClient";
     private TwilioIPMessagingClient ipMessagingClient;
     private Context context;
-    private String capabilityToken;
+    private String accessToken;
     private String gcmToken;
-    private TwilioAccessManager acessMgr;
+    private TwilioAccessManager accessMgr;
     private Handler loginListenerHandler;
     private String urlString;
 
@@ -39,9 +39,17 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
         this.gcmToken = gcmToken;
     }
 
+    public String getAccessToken() {
+        return accessToken;
+    }
 
-    public void doLogin(final ILoginListener listener) {
-        //this.urlString = url;
+    public void setAccessToken(String capabilityToken) {
+        this.accessToken = capabilityToken;
+    }
+
+
+    public void doLogin(final String capabilityToken, final ILoginListener listener, String url) {
+        this.urlString = url;
         this.loginListenerHandler = setupListenerHandler();
         TwilioIPMessagingSDK.setLogLevel(android.util.Log.DEBUG);
         if(!TwilioIPMessagingSDK.isInitialized()) {
@@ -138,7 +146,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     }
 
     private void createClientWithAccessManager(final ILoginListener listener) {
-        this.acessMgr = TwilioAccessManagerFactory.createAccessManager(this.capabilityToken, new TwilioAccessManagerListener() {
+        this.accessMgr = TwilioAccessManagerFactory.createAccessManager(this.accessToken, new TwilioAccessManagerListener() {
             @Override
             public void onAccessManagerTokenExpire(TwilioAccessManager twilioAccessManager) {
                 Log.d(TAG, "token expired.");
@@ -156,7 +164,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
             }
         });
 
-        ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithAccessManager(BasicIPMessagingClient.this.acessMgr, BasicIPMessagingClient.this);
+        ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithAccessManager(BasicIPMessagingClient.this.accessMgr, BasicIPMessagingClient.this);
         if(ipMessagingClient != null) {
             ipMessagingClient.setListener(BasicIPMessagingClient.this);
             BasicIPMessagingClient.this.loginListenerHandler.post(new Runnable() {
@@ -173,7 +181,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     }
 
     private void createClientWithToken(ILoginListener listener) {
-        ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithToken(capabilityToken, BasicIPMessagingClient.this);
+        ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithToken(accessToken, BasicIPMessagingClient.this);
         if(ipMessagingClient != null) {
             if(listener != null) {
                 listener.onLoginFinished();
@@ -188,7 +196,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            ipMessagingClient.updateToken(null, new Constants.StatusListener() {
+            ipMessagingClient.updateToken(accessToken, new Constants.StatusListener() {
 
                 @Override
                 public void onSuccess() {
@@ -199,7 +207,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
                 public void onError() {
                     Log.e(TAG, "Updated Token failed");
                 }});
-            acessMgr.updateToken(null);
+            accessMgr.updateToken(null);
         }
 
         @Override
@@ -210,11 +218,11 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
         @Override
         protected String doInBackground(String... params) {
             try {
-                capabilityToken = HttpHelper.httpGet(params[0]);
+                accessToken = HttpHelper.httpGet(params[0]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return capabilityToken;
+            return accessToken;
         }
     }
 }

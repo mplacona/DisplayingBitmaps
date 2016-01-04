@@ -47,7 +47,7 @@ public class MessageViewHolder extends ItemViewHolder<Message> {
 
     @Override
     public void onSetValues(Message message, PositionInfo pos) {
-        StringBuffer textInfo = new StringBuffer();
+        StringBuilder textInfo = new StringBuilder();
         String dateString = message.getTimeStamp();
         if(dateString != null) {
             textInfo.append(message.getAuthor()).append(":").append(dateString);
@@ -57,9 +57,9 @@ public class MessageViewHolder extends ItemViewHolder<Message> {
         txtInfo.setText(textInfo.toString());
         body.setText(message.getMessageBody());
 
-        boolean left = (message.getAuthor().compareTo(ChatActivity.local_author) == 0)? true:false;
+        boolean left = (message.getAuthor().compareTo(ChatActivity.local_author) == 0);
         body.setBackgroundResource(left ? R.drawable.bubble_a : R.drawable.bubble_b);
-        singleMessageContainer.setGravity(left ? Gravity.LEFT : Gravity.RIGHT);
+        singleMessageContainer.setGravity(left ? Gravity.START : Gravity.END);
     }
 
     public interface OnMessageClickListener {
