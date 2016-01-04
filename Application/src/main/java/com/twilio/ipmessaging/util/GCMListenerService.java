@@ -1,19 +1,13 @@
 package com.twilio.ipmessaging.util;
 
 
-import java.util.HashMap;
+import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 import com.twilio.ipmessaging.application.TwilioApplication;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import java.util.HashMap;
 
 public class GCMListenerService extends GcmListenerService {
 
@@ -23,7 +17,7 @@ public class GCMListenerService extends GcmListenerService {
     @Override
     public void onMessageReceived(String from, Bundle data) {
         Log.d(TAG, "onMessageReceived for GCM");
-        HashMap<String, String> pushNotification = new HashMap<String, String>();
+        HashMap<String, String> pushNotification = new HashMap<>();
         for( String key : data.keySet() ){
             pushNotification.put(key, data.getString(key));
         }
