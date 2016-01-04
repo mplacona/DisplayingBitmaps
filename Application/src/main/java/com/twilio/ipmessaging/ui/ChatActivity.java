@@ -22,6 +22,7 @@ import com.twilio.ipmessaging.Channels;
 import com.twilio.ipmessaging.Constants;
 import com.twilio.ipmessaging.Constants.CreateChannelListener;
 import com.twilio.ipmessaging.Constants.StatusListener;
+import com.twilio.ipmessaging.IPMessagingClientListener;
 import com.twilio.ipmessaging.Member;
 import com.twilio.ipmessaging.Message;
 import com.twilio.ipmessaging.Messages;
@@ -43,12 +44,12 @@ import java.util.concurrent.ExecutionException;
 import uk.co.ribot.easyadapter.EasyAdapter;
 
 
-public class ChatActivity extends FragmentActivity implements ChannelListener, ILoginListener {
+public class ChatActivity extends FragmentActivity implements ChannelListener, ILoginListener, IPMessagingClientListener {
 
     // Authentication
-    private static final String AUTH_SCRIPT = "http://48356f9c.ngrok.io/token";
-    private String accessToken = null;
-    private BasicIPMessagingClient chatClient;
+    private static final String AUTH_SCRIPT = "http://9db5d423.ngrok.io/token";
+    private String capabilityToken = null;
+    private BasicIPMessagingClient basicClient;
     private ProgressDialog progressDialog;
 
     // Chat
@@ -70,10 +71,11 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        chatClient = TwilioApplication.get().getBasicClient();
-
-        // Authentication
-        authenticateUser();
+        basicClient = TwilioApplication.get().getBasicClient();
+        if(basicClient != null) {
+            // Authentication
+            authenticateUser();
+        }
 
         // Chat
         currentImage = getIntent().getIntExtra(ImageDetailActivity.EXTRA_IMAGE, -1);
@@ -216,6 +218,31 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
     }
 
     @Override
+    public void onChannelAdd(Channel channel) {
+        Log.d(TAG, "Received onChannelAdd callback "+channel.getUniqueName());
+    }
+
+    @Override
+    public void onChannelChange(Channel channel) {
+        Log.d(TAG, "Received onChannelChange callback "+channel.getUniqueName());
+    }
+
+    @Override
+    public void onChannelDelete(Channel channel) {
+
+    }
+
+    @Override
+    public void onError(int errorCode, String errorText) {
+        Log.d(TAG, "Received onError callback "+ errorCode + " " + errorText);
+    }
+
+    @Override
+    public void onAttributesChange(String s) {
+        Log.d(TAG, "Received onAttributesChange callback");
+    }
+
+    @Override
     public void onChannelHistoryLoaded(Channel channel) {
         setupListView();
     }
@@ -228,14 +255,15 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
     @Override
     public void onLoginFinished() {
         ChatActivity.this.progressDialog.dismiss();
+        basicClient.getIpMessagingClient().setListener(ChatActivity.this);
 
         final String channelName = "TestChannel" + String.valueOf(currentImage);
-        Channels channelsLocal = chatClient.getIpMessagingClient().getChannels();
+        Channels channelsLocal = basicClient.getIpMessagingClient().getChannels();
         // Creates a new public channel if one doesn't already exist
         if (channelsLocal.getChannelByUniqueName(channelName) != null) {
             //join it
             final Channel newChannel = channelsLocal.getChannelByUniqueName(channelName);
-            newChannel.join(new Constants.StatusListener() {
+            newChannel.join(new StatusListener() {
                 @Override
                 public void onSuccess() {
                     channel.setListener(ChatActivity.this);
@@ -248,7 +276,6 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
                                 messages = new ArrayList<>(Arrays.asList(messagesArray));
                             }
                             channel = newChannel;
-                            setupListView();
                         }
                     });
                     Log.d(TAG, "Successfully joined existing channel");
@@ -352,7 +379,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    ChatActivity.this.chatClient.doLogin(accessToken, ChatActivity.this, urlString);
+                    ChatActivity.this.basicClient.doLogin(capabilityToken, ChatActivity.this, urlString);
                 }
             }).start();
         }
@@ -368,17 +395,17 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
         protected String doInBackground(String... params) {
             try {
                 urlString = params[0];
-                accessToken = HttpHelper.httpGet(urlString);
+                capabilityToken = HttpHelper.httpGet(urlString);
 
-                JSONObject responseObject = new JSONObject(accessToken);
+                JSONObject responseObject = new JSONObject(capabilityToken);
                 String token = responseObject.getString("token");
                 ChatActivity.local_author = responseObject.getString("identity");
 
-                chatClient.setAccessToken(token);
+                basicClient.setCapabilityToken(token);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return accessToken;
+            return capabilityToken;
         }
     }
 }

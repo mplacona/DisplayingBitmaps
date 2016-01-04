@@ -20,7 +20,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     private static final String TAG = "BasicIPMessagingClient";
     private TwilioIPMessagingClient ipMessagingClient;
     private Context context;
-    private String accessToken;
+    private static String capabilityToken;
     private TwilioAccessManager accessMgr;
     private Handler loginListenerHandler;
     private String urlString;
@@ -30,12 +30,12 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
         this.context = context;
     }
 
-    public String getAccessToken() {
-        return accessToken;
+    public void setCapabilityToken(String capabilityToken) {
+        this.capabilityToken = capabilityToken;
     }
 
-    public void setAccessToken(String capabilityToken) {
-        this.accessToken = capabilityToken;
+    public static String getCapabilityToken() {
+        return capabilityToken;
     }
 
 
@@ -137,7 +137,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     }
 
     private void createClientWithAccessManager(final ILoginListener listener) {
-        this.accessMgr = TwilioAccessManagerFactory.createAccessManager(this.accessToken, new TwilioAccessManagerListener() {
+        this.accessMgr = TwilioAccessManagerFactory.createAccessManager(this.capabilityToken, new TwilioAccessManagerListener() {
             @Override
             public void onAccessManagerTokenExpire(TwilioAccessManager twilioAccessManager) {
                 Log.d(TAG, "token expired.");
@@ -172,7 +172,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     }
 
     private void createClientWithToken(ILoginListener listener) {
-        ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithToken(accessToken, BasicIPMessagingClient.this);
+        ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithToken(this.capabilityToken, BasicIPMessagingClient.this);
         if(ipMessagingClient != null) {
             if(listener != null) {
                 listener.onLoginFinished();
@@ -187,7 +187,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            ipMessagingClient.updateToken(accessToken, new Constants.StatusListener() {
+            ipMessagingClient.updateToken(BasicIPMessagingClient.getCapabilityToken(), new Constants.StatusListener() {
 
                 @Override
                 public void onSuccess() {
@@ -209,11 +209,11 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
         @Override
         protected String doInBackground(String... params) {
             try {
-                accessToken = HttpHelper.httpGet(params[0]);
+                capabilityToken = HttpHelper.httpGet(params[0]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return accessToken;
+            return capabilityToken;
         }
     }
 }
