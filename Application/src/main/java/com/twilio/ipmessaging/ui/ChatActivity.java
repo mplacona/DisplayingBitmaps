@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -53,7 +54,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
     private ProgressDialog progressDialog;
 
     // Chat
-    private static final String TAG = "ChatActivity";
+    private static final String TAG = "ChatActivityTag";
     private List<Message> messages = new ArrayList<>();
     private EasyAdapter<Message> adapter;
 
@@ -120,6 +121,12 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
     private class CustomMessageComparator implements Comparator<Message> {
         @Override
         public int compare(Message lhs, Message rhs) {
+            if (lhs == null) {
+                return (rhs == null) ? 0 : -1;
+            }
+            if (rhs == null) {
+                return 1;
+            }
             return lhs.getTimeStamp().compareTo(rhs.getTimeStamp());
         }
     }
@@ -174,12 +181,16 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
 
     @Override
     public void onMessageAdd(Message message) {
-        setupListView();
+        if(message != null) {
+            Log.d(TAG, "Received onMessageAdd event");
+        }
     }
 
     @Override
     public void onMessageChange(Message message) {
-
+        if(message != null) {
+            Log.d(TAG, "Received onMessageChange event");
+        }
     }
 
     @Override
@@ -189,7 +200,9 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
 
     @Override
     public void onMemberJoin(Member member) {
-        setupListView();
+        if(member != null) {
+            Log.d(TAG, member.getIdentity() + " joined");
+        }
     }
 
     @Override
@@ -244,7 +257,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
 
     @Override
     public void onChannelHistoryLoaded(Channel channel) {
-        setupListView();
+        Log.d(TAG, "Received onChannelHistoryLoaded callback " + channel.getUniqueName());
     }
 
     @Override
@@ -259,23 +272,22 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
 
         final String channelName = "TestChannel" + String.valueOf(currentImage);
         Channels channelsLocal = basicClient.getIpMessagingClient().getChannels();
+        Channel name = channelsLocal.getChannelByUniqueName(channelName);
         // Creates a new public channel if one doesn't already exist
         if (channelsLocal.getChannelByUniqueName(channelName) != null) {
             //join it
             final Channel newChannel = channelsLocal.getChannelByUniqueName(channelName);
-            newChannel.join(new StatusListener() {
+            channel = newChannel;
+            channel.setListener(ChatActivity.this);
+
+            // Listen for channel join status
+            StatusListener joinListener = new StatusListener(){
                 @Override
                 public void onSuccess() {
-                    channel.setListener(ChatActivity.this);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Messages messagesObject = newChannel.getMessages();
-                            Message[] messagesArray = messagesObject.getMessages();
-                            if (messagesArray.length > 0) {
-                                messages = new ArrayList<>(Arrays.asList(messagesArray));
-                            }
-                            channel = newChannel;
+                            setupListView();
                         }
                     });
                     Log.d(TAG, "Successfully joined existing channel");
@@ -285,14 +297,32 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
                 public void onError() {
                     Log.e(TAG, "failed to join existing channel");
                 }
+            };
 
-            });
-
+            // join the channel
+            channel.join(joinListener);
         } else {
-            channelsLocal.createChannel(channelName, Channel.ChannelType.CHANNEL_TYPE_PUBLIC, new CreateChannelListener() {
+
+            final Map<String, String> attributes = new HashMap<>();
+            attributes.put("topic", "Discussion on image : " + String.valueOf(currentImage));
+
+            Map<String, Object> options = new HashMap<>();
+            options.put(Constants.CHANNEL_FRIENDLY_NAME, channelName);
+            options.put(Constants.CHANNEL_UNIQUE_NAME, channelName);
+            options.put(Constants.CHANNEL_TYPE, Channel.ChannelType.CHANNEL_TYPE_PUBLIC);
+            options.put("attributes", attributes);
+
+            channelsLocal.createChannel(options, new CreateChannelListener() {
                 @Override
                 public void onCreated(final Channel newChannel) {
-                    Log.e(TAG, "Successfully created a channel");
+                    Log.e(TAG, "Successfully created a channel with options");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupListView();
+                        }
+                    });
+                    /*
                     if (newChannel != null) {
                         Channel.ChannelType type = newChannel.getType();
                         newChannel.setListener(ChatActivity.this);
@@ -304,19 +334,6 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
                             @Override
                             public void onSuccess() {
                                 channel.setListener(ChatActivity.this);
-                                // Set unique name
-                                newChannel.setUniqueName(channelName, new StatusListener() {
-                                    @Override
-                                    public void onSuccess() {
-                                        Log.d(TAG, "Successfully set new channel unique name");
-                                    }
-
-                                    @Override
-                                    public void onError() {
-                                        Log.e(TAG, "Failed to set new channel unique name");
-                                    }
-                                });
-
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -339,7 +356,9 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
                         };
                         newChannel.join(joinListener);
                     }
+                    */
                 }
+
 
                 @Override
                 public void onError() {
