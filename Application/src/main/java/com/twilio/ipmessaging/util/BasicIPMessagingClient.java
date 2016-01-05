@@ -10,7 +10,7 @@ import com.twilio.common.TwilioAccessManager;
 import com.twilio.common.TwilioAccessManagerFactory;
 import com.twilio.common.TwilioAccessManagerListener;
 import com.twilio.ipmessaging.Channel;
-import com.twilio.ipmessaging.Constants;
+import com.twilio.ipmessaging.Constants.StatusListener;
 import com.twilio.ipmessaging.Constants.InitListener;
 import com.twilio.ipmessaging.IPMessagingClientListener;
 import com.twilio.ipmessaging.TwilioIPMessagingClient;
@@ -39,7 +39,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
     }
 
 
-    public void doLogin(final String capabilityToken, final ILoginListener listener, String url) {
+    public void doLogin(final ILoginListener listener, String url) {
         this.urlString = url;
         this.loginListenerHandler = setupListenerHandler();
         TwilioIPMessagingSDK.setLogLevel(android.util.Log.DEBUG);
@@ -62,7 +62,6 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
 
     @Override
     public void onChannelAdd(Channel channel) {
-        //channel.setListener(BasicIPMessagingClient.this);
         if(channel != null) {
             Log.d(TAG, "A Channel :" + channel.getFriendlyName() + " got added");
         } else {
@@ -126,7 +125,6 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
         } else if((looper = Looper.getMainLooper()) != null) {
             handler = new Handler(looper);
         } else {
-            handler = null;
             throw new IllegalArgumentException("Channel Listener must have a Looper.");
         }
         return handler;
@@ -187,7 +185,7 @@ public class BasicIPMessagingClient implements IPMessagingClientListener, Twilio
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            ipMessagingClient.updateToken(BasicIPMessagingClient.getCapabilityToken(), new Constants.StatusListener() {
+            ipMessagingClient.updateToken(BasicIPMessagingClient.getCapabilityToken(), new StatusListener() {
 
                 @Override
                 public void onSuccess() {

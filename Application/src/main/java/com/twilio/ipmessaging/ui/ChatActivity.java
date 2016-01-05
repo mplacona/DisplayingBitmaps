@@ -93,17 +93,17 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
                 if (channel != null) {
                     Messages messagesObject = channel.getMessages();
                     final Message message = messagesObject.createMessage(input);
-                    messagesObject.sendMessage(message, new Constants.StatusListener() {
+                    messagesObject.sendMessage(message, new StatusListener() {
                         @Override
                         public void onSuccess() {
                             Log.e(TAG, "Successful at sending message.");
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-
                                     messages.add(message);
-                                    etMessage.setText("");
                                     adapter.notifyDataSetChanged();
+                                    etMessage.setText("");
+                                    etMessage.requestFocus();
                                 }
                             });
                         }
@@ -272,12 +272,10 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
 
         final String channelName = "TestChannel" + String.valueOf(currentImage);
         Channels channelsLocal = basicClient.getIpMessagingClient().getChannels();
-        Channel name = channelsLocal.getChannelByUniqueName(channelName);
         // Creates a new public channel if one doesn't already exist
         if (channelsLocal.getChannelByUniqueName(channelName) != null) {
             //join it
-            final Channel newChannel = channelsLocal.getChannelByUniqueName(channelName);
-            channel = newChannel;
+            channel = channelsLocal.getChannelByUniqueName(channelName);
             channel.setListener(ChatActivity.this);
 
             // Listen for channel join status
@@ -316,47 +314,13 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
                 @Override
                 public void onCreated(final Channel newChannel) {
                     Log.e(TAG, "Successfully created a channel with options");
+                    channel = newChannel;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             setupListView();
                         }
                     });
-                    /*
-                    if (newChannel != null) {
-                        Channel.ChannelType type = newChannel.getType();
-                        newChannel.setListener(ChatActivity.this);
-                        Log.e(TAG, "channel Type is : " + type.toString());
-
-                        // Join listener
-                        StatusListener joinListener = new StatusListener() {
-
-                            @Override
-                            public void onSuccess() {
-                                channel.setListener(ChatActivity.this);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Messages messagesObject = newChannel.getMessages();
-                                        Message[] messagesArray = messagesObject.getMessages();
-                                        if (messagesArray.length > 0) {
-                                            messages = new ArrayList<>(Arrays.asList(messagesArray));
-                                        }
-                                        channel = newChannel;
-                                        setupListView();
-                                    }
-                                });
-                                Log.d(TAG, "Successfully joined new channel");
-                            }
-
-                            @Override
-                            public void onError() {
-                                Log.e(TAG, "failed to join new channel");
-                            }
-                        };
-                        newChannel.join(joinListener);
-                    }
-                    */
                 }
 
 
@@ -398,7 +362,7 @@ public class ChatActivity extends FragmentActivity implements ChannelListener, I
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    ChatActivity.this.basicClient.doLogin(capabilityToken, ChatActivity.this, urlString);
+                    ChatActivity.this.basicClient.doLogin(ChatActivity.this, urlString);
                 }
             }).start();
         }

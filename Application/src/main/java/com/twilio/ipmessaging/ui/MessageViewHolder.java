@@ -58,9 +58,14 @@ public class MessageViewHolder extends ItemViewHolder<Message> {
             txtInfo.setText(textInfo.toString());
             body.setText(message.getMessageBody());
 
-            boolean left = (message.getAuthor().compareTo(ChatActivity.local_author) == 0);
-            body.setBackgroundResource(!left ? R.drawable.bubble_b : R.drawable.bubble_a);
-            singleMessageContainer.setGravity(left ? Gravity.START : Gravity.END);
+            // Check for current author
+            if(message.getAuthor().compareTo(ChatActivity.local_author) == 0 || message.getAuthor().equals("")){
+                body.setBackgroundResource(R.drawable.bubble_a);
+                singleMessageContainer.setGravity(Gravity.END);
+            }else{
+                body.setBackgroundResource(R.drawable.bubble_b);
+                singleMessageContainer.setGravity(Gravity.START);
+            }
         }
 
     }
